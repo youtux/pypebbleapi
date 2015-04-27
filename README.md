@@ -9,7 +9,7 @@ Usage
 -----
 
 Usage is pretty simple:
-
+```python
     from pypebbleapi import Timeline, Pin
     import datetime
 
@@ -18,6 +18,7 @@ Usage is pretty simple:
     my_pin = Pin(id='123', datetime.date.today().isoformat())
 
     timeline.send_shared_pin(['a_topic', 'another_topic'], my_pin)
+```
 
 
 Install
