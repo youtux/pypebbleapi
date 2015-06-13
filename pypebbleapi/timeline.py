@@ -39,7 +39,7 @@ class Timeline(object):
         result = requests.put(
             url,
             headers={
-                'X-User-Token': self.user_token,
+                'X-User-Token': user_token,
             },
             json=dict(pin),
         )
