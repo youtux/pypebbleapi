@@ -15,7 +15,7 @@ import datetime
 
 timeline = Timeline(my_api_key)
 
-my_pin = Pin(id='123', datetime.date.today().isoformat())
+my_pin = Pin(id='123', time=datetime.date.today().isoformat())
 
 timeline.send_shared_pin(['a_topic', 'another_topic'], my_pin)
 ```
