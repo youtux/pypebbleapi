@@ -51,7 +51,7 @@ class Timeline(object):
         result = requests.delete(
             url,
             headers={
-                'X-User-Token': self.user_token,
+                'X-User-Token': user_token,
             },
         )
         return result
@@ -62,7 +62,7 @@ class Timeline(object):
         result = requests.post(
             url,
             headers={
-                'X-User-Token': self.user_token,
+                'X-User-Token': user_token,
             },
         )
         return result
@@ -73,7 +73,7 @@ class Timeline(object):
         result = requests.delete(
             url,
             headers={
-                'X-User-Token': self.user_token,
+                'X-User-Token': user_token,
             },
         )
         return result
