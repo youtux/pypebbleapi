@@ -34,6 +34,8 @@ class Timeline(object):
         return result
 
     def send_user_pin(self, user_token, pin):
+        if not isinstance(user_token, str):
+            raise ValueError("Expected user_token to be a string.")
         url = "{}/v1/user/pins/{}".format(self._api_root, pin['id'])
 
         result = requests.put(
