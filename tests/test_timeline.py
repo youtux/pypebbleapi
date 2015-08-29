@@ -1,10 +1,14 @@
 import re
 from datetime import datetime
+from contextlib import contextmanager
+import json
 
 import httpretty as _httpretty
 import pytest
 
-from httpretty import GET, PUT
+from requests import HTTPError
+
+from httpretty import GET, PUT, DELETE, POST
 from pypebbleapi import Timeline
 
 FAKE_API_ROOT = 'http://timeline_api'
@@ -23,6 +27,27 @@ def urlize(partial_url):
     return re.compile(re.escape(FAKE_API_ROOT) + partial_url)
 
 
+@contextmanager
+def server(status_code):
+    _httpretty.enable()
+    _httpretty.register_uri(
+        PUT,
+        urlize(r"/v1/shared/pins/(.*)"),
+        body=b'OK',
+        content_type="application/json",
+        status=status_code)
+    _httpretty.register_uri(
+        PUT,
+        urlize(r"/v1/user/pins/(.*)"),
+        body=b'OK',
+        content_type="application/json",
+        status=status_code)
+    yield
+
+    _httpretty.disable()
+    _httpretty.reset()
+
+
 @pytest.fixture
 def httpretty(request):
     _httpretty.enable()
@@ -30,23 +55,7 @@ def httpretty(request):
     def fin():
         _httpretty.disable()
         _httpretty.reset()
-    request.addfinalizer(fin)
-    return _httpretty
 
-
-@pytest.fixture(params=[200, 429, 503])
-def server(request):
-    _httpretty.enable()
-    _httpretty.register_uri(
-        PUT,
-        urlize(r"/v1/shared/pins/(.*)"),
-        body='[{"title": "Test Deal"}]',
-        content_type="application/json",
-        status=request.param)
-
-    def fin():
-        _httpretty.disable()
-        _httpretty.reset()
     request.addfinalizer(fin)
     return _httpretty
 
@@ -80,30 +89,83 @@ def test_can_set_api_root():
     assert t._api_root == FAKE_API_ROOT
 
 
-# def test_send_shared_pin(server):
-#     t = Timeline(api_root=FAKE_API_ROOT)
+def test_send_shared_pin(timeline, httpretty):
+    httpretty.register_uri(PUT, urlize(r"/v1/shared/pins/(.*)"),
+        body=b'OK', status=200, content_type="application/json")
 
-#     assert t._api_root == FAKE_API_ROOT
+    timeline.send_shared_pin(['a', 'b'], fake_pin)
 
-#     response = t.send_shared_pin(['a', 'b'], {'id': 3})
+    httpretty.register_uri(PUT, urlize(r"/v1/shared/pins/(.*)"),
+        body=b'BAD', status=400, content_type="application/json")
 
-#     assert response.status_code in [200, 429, 503]
+    with pytest.raises(HTTPError):
+        timeline.send_shared_pin(['a', 'b'], fake_pin)
 
 
-def test_send_user_token_good(httpretty, timeline):
-    httpretty.register_uri(
-        PUT,
-        urlize(r"/v1/user/pins/(.*)"),
-        body='{status: "OK"}',
-        content_type="application/json",
-        status=200)
+def test_delete_shared_pin(timeline, httpretty):
+    httpretty.register_uri(DELETE, urlize(r"/v1/shared/pins/(.*)"),
+        body=b'OK', status=200, content_type="application/json")
+
+    timeline.delete_shared_pin('test')
+
+    httpretty.register_uri(DELETE, urlize(r"/v1/shared/pins/(.*)"),
+        body=b'BAD', status=400, content_type="application/json")
+
+    with pytest.raises(HTTPError):
+        timeline.delete_shared_pin('test')
+
+
+def test_send_user_pin(timeline, httpretty):
+    httpretty.register_uri(PUT, urlize(r"/v1/user/pins/(.*)"),
+        body=b'OK', status=200, content_type="application/json")
+
     timeline.send_user_pin(user_token='3323', pin=fake_pin)
 
+    httpretty.register_uri(PUT, urlize(r"/v1/user/pins/(.*)"),
+        body=b'OK', status=400, content_type="application/json")
 
-def test_error_if_user_token_is_not_a_string(server, timeline):
-    with pytest.raises(ValueError):
-        timeline.send_user_pin(user_token=5, pin=fake_pin)
+    with pytest.raises(HTTPError):
+        timeline.send_user_pin(user_token='3323', pin=fake_pin)
 
 
-def test_should_handle_remote_errors(server, timeline):
-    pass
+def test_delete_user_pin(timeline, httpretty):
+    httpretty.register_uri(DELETE, urlize(r"/v1/user/pins/(.*)"),
+        body=b'OK', status=200, content_type="application/json")
+
+    timeline.delete_user_pin(user_token='3323', pin_id='test')
+
+    httpretty.register_uri(DELETE, urlize(r"/v1/user/pins/(.*)"),
+        body=b'OK', status=400, content_type="application/json")
+
+    with pytest.raises(HTTPError):
+        timeline.delete_user_pin(user_token='3323', pin_id='test')
+
+
+def test_list_user_subscriptions(timeline, httpretty):
+    response = {'topics': ['a', 'b']}
+    httpretty.register_uri(GET, urlize(r"/v1/user/subscriptions"),
+        body=json.dumps(response), status=200, content_type="application/json")
+
+    assert timeline.list_subscriptions(user_token='testuser') == ['a', 'b']
+
+    httpretty.register_uri(GET, urlize(r"/v1/user/subscriptions"),
+        body='{}', status=400, content_type="application/json")
+
+    with pytest.raises(HTTPError):
+        timeline.list_subscriptions(user_token='testuser')
+
+def test_subscribe(timeline, httpretty):
+    httpretty.register_uri(POST, urlize(r"/v1/user/subscriptions/(.*)"),
+        body=b'OK', status=200, content_type="application/json")
+
+    timeline.subscribe('testuser', 'testtopic')
+
+    assert httpretty.last_request().method == 'POST'
+
+def test_unsubscribe(timeline, httpretty):
+    httpretty.register_uri(DELETE, urlize(r"/v1/user/subscriptions/(.*)"),
+        body=b'OK', status=200, content_type="application/json")
+
+    timeline.unsubscribe('testuser', 'testtopic')
+
+    assert httpretty.last_request().method == 'DELETE'
