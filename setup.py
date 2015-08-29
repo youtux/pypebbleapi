@@ -18,7 +18,7 @@ setup(
     description='Pebble-api for python.',
     long_description=__doc__,
     packages=find_packages(),
-    install_requires=['requests~=2.6', 'six~=1.9', 'Cerberus~=0.9'],
+    install_requires=['requests>=2.5.1,<3', 'six~=1.9', 'Cerberus~=0.9'],
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
