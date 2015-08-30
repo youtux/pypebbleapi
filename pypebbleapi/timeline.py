@@ -37,7 +37,7 @@ def _raise_for_status(response):
 
 
 def _request(method, url, api_key=None, user_token=None, topics_list=None,
-        json=None):
+        json=None, user_agent=None):
     headers = {}
     if api_key:
         headers['X-API-Key'] = api_key
@@ -45,6 +45,8 @@ def _request(method, url, api_key=None, user_token=None, topics_list=None,
         headers['X-User-Token'] = user_token
     if topics_list:
         headers['X-PIN-Topics'] = ','.join(t for t in topics_list)
+    if user_agent:
+        headers['User-Agent'] = user_agent
 
     return requests.request(method, url, headers=headers, json=json)
 
@@ -84,6 +86,7 @@ class Timeline(object):
 
         response = _request('PUT',
             url=self.url_v1('/shared/pins/' + pin['id']),
+            user_agent=self.user_agent,
             api_key=self.api_key,
             topics_list=topics,
             json=pin,
@@ -96,6 +99,7 @@ class Timeline(object):
 
         response = _request('DELETE',
             url=self.url_v1('/shared/pins/' + pin_id),
+            user_agent=self.user_agent,
             api_key=self.api_key,
         )
         _raise_for_status(response)
@@ -106,6 +110,7 @@ class Timeline(object):
 
         response = _request('PUT',
             url=self.url_v1('/user/pins/' + pin['id']),
+            user_agent=self.user_agent,
             user_token=user_token,
             json=pin,
         )
@@ -114,6 +119,7 @@ class Timeline(object):
     def delete_user_pin(self, user_token, pin_id):
         response = _request('DELETE',
             url=self.url_v1('/user/pins/' + pin_id),
+            user_agent=self.user_agent,
             user_token=user_token,
         )
         _raise_for_status(response)
@@ -121,6 +127,7 @@ class Timeline(object):
     def subscribe(self, user_token, topic):
         response = _request('POST',
             url=self.url_v1('/user/subscriptions/' + topic),
+            user_agent=self.user_agent,
             user_token=user_token,
         )
         _raise_for_status(response)
@@ -128,6 +135,7 @@ class Timeline(object):
     def unsubscribe(self, user_token, topic):
         response = _request('DELETE',
             url=self.url_v1('/user/subscriptions/' + topic),
+            user_agent=self.user_agent,
             user_token=user_token,
         )
         _raise_for_status(response)
@@ -135,6 +143,7 @@ class Timeline(object):
     def list_subscriptions(self, user_token):
         response = _request('GET',
             url=self.url_v1('/user/subscriptions'),
+            user_agent=self.user_agent,
             user_token=user_token,
         )
         _raise_for_status(response)
