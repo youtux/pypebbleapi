@@ -1,4 +1,4 @@
-from pypebbleapi import validation
+from pypebbleapi import schemas
 from cerberus import Validator
 
 import pytest
@@ -6,11 +6,11 @@ import pytest
 
 @pytest.fixture
 def pin_validator():
-    return Validator(validation.pin)
+    return Validator(schemas.pin)
 
 
 def test_simple_document():
-    v = Validator(validation.pin)
+    v = Validator(schemas.pin)
     assert v
     document = {
         'id': '3',

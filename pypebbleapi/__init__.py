@@ -7,3 +7,4 @@ __license__ = 'MIT'
 __copyright__ = 'Copyright 2015 Alessio Bogon'
 
 from .timeline import Timeline
+from .schemas import DocumentError

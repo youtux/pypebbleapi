@@ -1,6 +1,17 @@
 from copy import deepcopy
 
 
+class DocumentError(ValueError):
+    """There was an ambiguous exception that occurred while handling your
+    request."""
+
+    def __init__(self, *args, **kwargs):
+        """
+        Initialize RequestException with `request` and `response` objects.
+        """
+        self.errors = kwargs.pop('errors', None)
+        super(DocumentError, self).__init__(*args, **kwargs)
+
 layout_types = {
     'genericPin',
     'calendarPin',
