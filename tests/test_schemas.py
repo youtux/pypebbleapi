@@ -82,9 +82,41 @@ def test_reminder(data, error_keys):
 
     assert set(error_keys) == set(reminder_validator.errors.keys())
 
+common_layout_test_data = [
+    ({
+         'type': 5,
+     }, ['type']),
+    ({}, ['type']),
+    ({
+        'type': 'NOT A LAYOUT'
+    }, ['type']),
+]
 
-class TestLayout(object):
-    pass
+
+@pytest.mark.parametrize(['data', 'error_keys'], common_layout_test_data)
+def test_common_layouts(data, error_keys):
+    for l in schemas.layouts:
+        layout_validator = Validator(l)
+        layout_validator(data)
+
+        assert set(error_keys) <= set(layout_validator.errors.keys())
+
+# TODO: more generic layout tests
+generic_layout_test_data = [
+    ({
+        'type': 'genericPin',
+        'title': 5,
+    }, ['title', 'tinyIcon']),
+]
+
+@pytest.mark.parametrize(['data', 'error_keys'], generic_layout_test_data)
+def test_generic_layout(data, error_keys):
+    generic_layout_validator = Validator(schemas.generic_layout)
+    generic_layout_validator(data)
+
+    assert set(error_keys) == set(generic_layout_validator.errors.keys())
+
+# TODO: many more tests :)
 
 
 def test_simple_document():
