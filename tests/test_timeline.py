@@ -111,12 +111,12 @@ def test_can_set_api_root():
 
 def test_send_shared_pin(timeline, httpretty):
     httpretty.register_uri(PUT, urlize(r"/v1/shared/pins/(.*)"),
-        body=b'OK', status=200, content_type="application/json")
+                           body=b'OK', status=200, content_type="application/json")
 
     timeline.send_shared_pin(['a', 'b'], fake_pin)
 
     httpretty.register_uri(PUT, urlize(r"/v1/shared/pins/(.*)"),
-        body=b'BAD', status=400, content_type="application/json")
+                           body=b'BAD', status=400, content_type="application/json")
 
     with pytest.raises(HTTPError):
         timeline.send_shared_pin(['a', 'b'], fake_pin)
@@ -124,12 +124,12 @@ def test_send_shared_pin(timeline, httpretty):
 
 def test_delete_shared_pin(timeline, httpretty):
     httpretty.register_uri(DELETE, urlize(r"/v1/shared/pins/(.*)"),
-        body=b'OK', status=200, content_type="application/json")
+                           body=b'OK', status=200, content_type="application/json")
 
     timeline.delete_shared_pin('test')
 
     httpretty.register_uri(DELETE, urlize(r"/v1/shared/pins/(.*)"),
-        body=b'BAD', status=400, content_type="application/json")
+                           body=b'BAD', status=400, content_type="application/json")
 
     with pytest.raises(HTTPError):
         timeline.delete_shared_pin('test')
@@ -137,12 +137,12 @@ def test_delete_shared_pin(timeline, httpretty):
 
 def test_send_user_pin(timeline, httpretty):
     httpretty.register_uri(PUT, urlize(r"/v1/user/pins/(.*)"),
-        body=b'OK', status=200, content_type="application/json")
+                           body=b'OK', status=200, content_type="application/json")
 
     timeline.send_user_pin(user_token='3323', pin=fake_pin)
 
     httpretty.register_uri(PUT, urlize(r"/v1/user/pins/(.*)"),
-        body=b'OK', status=400, content_type="application/json")
+                           body=b'OK', status=400, content_type="application/json")
 
     with pytest.raises(HTTPError):
         timeline.send_user_pin(user_token='3323', pin=fake_pin)
@@ -150,12 +150,12 @@ def test_send_user_pin(timeline, httpretty):
 
 def test_delete_user_pin(timeline, httpretty):
     httpretty.register_uri(DELETE, urlize(r"/v1/user/pins/(.*)"),
-        body=b'OK', status=200, content_type="application/json")
+                           body=b'OK', status=200, content_type="application/json")
 
     timeline.delete_user_pin(user_token='3323', pin_id='test')
 
     httpretty.register_uri(DELETE, urlize(r"/v1/user/pins/(.*)"),
-        body=b'OK', status=400, content_type="application/json")
+                           body=b'OK', status=400, content_type="application/json")
 
     with pytest.raises(HTTPError):
         timeline.delete_user_pin(user_token='3323', pin_id='test')
@@ -164,12 +164,12 @@ def test_delete_user_pin(timeline, httpretty):
 def test_list_user_subscriptions(timeline, httpretty):
     response = {'topics': ['a', 'b']}
     httpretty.register_uri(GET, urlize(r"/v1/user/subscriptions"),
-        body=json.dumps(response), status=200, content_type="application/json")
+                           body=json.dumps(response), status=200, content_type="application/json")
 
     assert timeline.list_subscriptions(user_token='testuser') == ['a', 'b']
 
     httpretty.register_uri(GET, urlize(r"/v1/user/subscriptions"),
-        body='{}', status=400, content_type="application/json")
+                           body='{}', status=400, content_type="application/json")
 
     with pytest.raises(HTTPError):
         timeline.list_subscriptions(user_token='testuser')
@@ -177,7 +177,7 @@ def test_list_user_subscriptions(timeline, httpretty):
 
 def test_subscribe(timeline, httpretty):
     httpretty.register_uri(POST, urlize(r"/v1/user/subscriptions/(.*)"),
-        body=b'OK', status=200, content_type="application/json")
+                           body=b'OK', status=200, content_type="application/json")
 
     timeline.subscribe('testuser', 'testtopic')
 
@@ -186,7 +186,7 @@ def test_subscribe(timeline, httpretty):
 
 def test_unsubscribe(timeline, httpretty):
     httpretty.register_uri(DELETE, urlize(r"/v1/user/subscriptions/(.*)"),
-        body=b'OK', status=200, content_type="application/json")
+                           body=b'OK', status=200, content_type="application/json")
 
     timeline.unsubscribe('testuser', 'testtopic')
 
