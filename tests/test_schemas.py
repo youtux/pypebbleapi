@@ -3,10 +3,88 @@ from cerberus import Validator
 
 import pytest
 
+fake_layout = {
+    'type': 'genericPin',
+    'title': 'Pin Title',
+    'tinyIcon': schemas.icon_name_to_path('NOTIFICATION_FLAG'),
+}
+fake_datetime = "2015-08-30T14:01:46.183869"
+
 
 @pytest.fixture
 def pin_validator():
     return Validator(schemas.pin)
+
+
+action_test_data = [
+    ({
+         'title': 5,
+         'type': 'openWatchApp',
+         'launchCode': 0,
+     }, ['title']),
+    ({
+         'title': 'Action',
+         'type': 5,
+         'launchCode': 0,
+     }, ['type']),
+    ({
+         'title': 'Action',
+         'type': 'openWatchApp',
+         'launchCode': '0',
+     }, ['launchCode']),
+    ({
+         'title': 'Action',
+         'type': 'openWatchApp',
+         'launchCode': 0,
+     }, [])
+]
+
+
+@pytest.mark.parametrize(['data', 'error_keys'], action_test_data)
+def test_action(data, error_keys):
+    action_validator = Validator(schemas.action)
+    action_validator(data)
+
+    assert set(error_keys) == set(action_validator.errors.keys())
+
+
+notification_test_data = [
+    ({
+         'time': fake_datetime,
+         'layout': fake_layout,
+     }, []),
+    ({
+         'time': fake_datetime,
+     }, ['layout'])
+]
+
+
+@pytest.mark.parametrize(['data', 'error_keys'], notification_test_data)
+def test_notification(data, error_keys):
+    notification_validator = Validator(schemas.notification)
+    notification_validator(data)
+
+    assert set(error_keys) == set(notification_validator.errors.keys())
+
+
+reminder_test_data = [
+    ({
+         'time': fake_datetime,
+         'layout': fake_layout,
+     }, []),
+]
+
+
+@pytest.mark.parametrize(['data', 'error_keys'], reminder_test_data)
+def test_reminder(data, error_keys):
+    reminder_validator = Validator(schemas.reminder)
+    reminder_validator(data)
+
+    assert set(error_keys) == set(reminder_validator.errors.keys())
+
+
+class TestLayout(object):
+    pass
 
 
 def test_simple_document():
