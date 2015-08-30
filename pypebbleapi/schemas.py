@@ -1,16 +1,20 @@
 from copy import deepcopy
+from pprint import pformat
 
 
 class DocumentError(ValueError):
     """There was an ambiguous exception that occurred while handling your
     request."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, errors):
         """
         Initialize RequestException with `request` and `response` objects.
         """
-        self.errors = kwargs.pop('errors', None)
-        super(DocumentError, self).__init__(*args, **kwargs)
+        self.errors = errors
+        message = "One or more errors occurred when validating the document:"
+        message += pformat(errors)
+        self.errors = errors
+        super(DocumentError, self).__init__(message)
 
 layout_types = {
     'genericPin',

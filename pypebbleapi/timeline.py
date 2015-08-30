@@ -54,10 +54,7 @@ def validate_pin(pin):
     if v.validate(pin):
         return
     else:
-        raise schemas.DocumentError(
-            "One or more errors occurred while validating the document.",
-            errors=v.errors
-        )
+        raise schemas.DocumentError(errors=v.errors)
 
 
 class Timeline(object):
