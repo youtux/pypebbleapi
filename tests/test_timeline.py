@@ -9,7 +9,10 @@ import pytest
 from requests import HTTPError
 
 from httpretty import GET, PUT, DELETE, POST
+
 from pypebbleapi import Timeline
+from pypebbleapi.timeline import validate_pin
+from pypebbleapi.schemas import DocumentError
 
 FAKE_API_ROOT = 'http://timeline_api'
 FAKE_API_KEY = 'FAKE_API_KEY'
@@ -19,7 +22,6 @@ PEBBLE_API_ROOT = 'https://timeline-api.getpebble.com'
 fake_pin = {
     'id': '1234',
     'time': datetime.now().isoformat(),
-    'layout': {},
 }
 
 
@@ -63,6 +65,24 @@ def httpretty(request):
 @pytest.fixture
 def timeline():
     return Timeline(api_root=FAKE_API_ROOT, api_key=FAKE_API_KEY)
+
+
+def test_validate_good_pin():
+    good_pin = {
+        "id": "meeting-453923",
+        "time": 'asdasdasd',
+    }
+
+    validate_pin(good_pin)
+
+
+def test_validate_bad_pin():
+    bad_pin = {
+        'id': 123
+    }
+
+    with pytest.raises(DocumentError):
+        validate_pin(bad_pin)
 
 
 def test_can_create_with_no_opts():
@@ -154,6 +174,7 @@ def test_list_user_subscriptions(timeline, httpretty):
     with pytest.raises(HTTPError):
         timeline.list_subscriptions(user_token='testuser')
 
+
 def test_subscribe(timeline, httpretty):
     httpretty.register_uri(POST, urlize(r"/v1/user/subscriptions/(.*)"),
         body=b'OK', status=200, content_type="application/json")
@@ -161,6 +182,7 @@ def test_subscribe(timeline, httpretty):
     timeline.subscribe('testuser', 'testtopic')
 
     assert httpretty.last_request().method == 'POST'
+
 
 def test_unsubscribe(timeline, httpretty):
     httpretty.register_uri(DELETE, urlize(r"/v1/user/subscriptions/(.*)"),

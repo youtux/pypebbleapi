@@ -1,6 +1,10 @@
 import requests
 
+from cerberus import Validator as _Validator
+
 from pypebbleapi import __version__
+from pypebbleapi import schemas
+
 
 PEBBLE_API_ROOT = 'https://timeline-api.getpebble.com'
 
@@ -45,6 +49,17 @@ def _request(method, url, api_key=None, user_token=None, topics_list=None,
     return requests.request(method, url, headers=headers, json=json)
 
 
+def validate_pin(pin):
+    v = _Validator(schemas.pin)
+    if v.validate(pin):
+        return
+    else:
+        raise schemas.DocumentError(
+            "One or more errors occurred while validating the document.",
+            errors=v.errors
+        )
+
+
 class Timeline(object):
     user_agent = '''pypebbleapi/{}'''.format(__version__)
 
@@ -64,9 +79,11 @@ class Timeline(object):
     def url_v1(self, partial_url=None):
         return '{}/v1{}'.format(self.api_root, partial_url)
 
-    def send_shared_pin(self, topics, pin):
+    def send_shared_pin(self, topics, pin, skip_validation=False):
         if not self.api_key:
             raise ValueError("You need to specify an api_key.")
+        if not skip_validation:
+            validate_pin(pin)
 
         response = _request('PUT',
             url=self.url_v1('/shared/pins/' + pin['id']),
@@ -86,7 +103,10 @@ class Timeline(object):
         )
         _raise_for_status(response)
 
-    def send_user_pin(self, user_token, pin):
+    def send_user_pin(self, user_token, pin, skip_validation=False):
+        if not skip_validation:
+            validate_pin(pin)
+
         response = _request('PUT',
             url=self.url_v1('/user/pins/' + pin['id']),
             user_token=user_token,
