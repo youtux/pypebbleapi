@@ -197,9 +197,12 @@ generic_notification_layout['type']['allowed'] = ['genericNotification']
 generic_notification_layout['title']['required'] = True
 generic_notification_layout['tinyIcon']['required'] = True
 
+layouts = [generic_notification_layout, generic_layout, calendar_layout, sports_layout,
+           weather_layout, generic_reminder_layout]
 
 notification = {
-    'layout': {'required': True, 'type': 'dict', 'schema': generic_notification_layout},
+    'layout': {'required': True, 'type': 'dict', 'oneof': [{'schema': l} for l in layouts]
+    },
     'time': {'type': 'string'}
 }
 
@@ -210,7 +213,7 @@ update_notification['time']['required'] = True
 
 reminder = {
     'time': {'type': 'string'},  # TODO: datetime
-    'layout': {'type': 'dict', 'schema': generic_reminder_layout},
+    'layout': {'type': 'dict', 'oneof': [{'schema': l} for l in layouts]},
 }
 
 
@@ -227,8 +230,7 @@ pin = {
     'createNotification': {'type': 'dict', 'schema': create_notification},
     'updateNotification': {'type': 'dict', 'schema': update_notification},
     'layout': {'type': 'dict',
-        'oneof': [{'schema': generic_layout}, {'schema': calendar_layout},
-                  {'schema': sports_layout}, {'schema': weather_layout}],
+        'oneof': [{'schema': l} for l in layouts],
         # 'oneof_schema': [generic_layout, calendar_layout,
         #                  sports_layout, weather_layout],
     },
