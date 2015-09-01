@@ -1,18 +1,16 @@
-import re
-from datetime import datetime
-from contextlib import contextmanager
 import json
+import re
+from contextlib import contextmanager
+from datetime import datetime
 
 import httpretty as _httpretty
 import pytest
-
+from httpretty import DELETE, GET, POST, PUT
 from requests import HTTPError
 
-from httpretty import GET, PUT, DELETE, POST
-
 from pypebbleapi import Timeline
-from pypebbleapi.timeline import validate_pin
 from pypebbleapi.schemas import DocumentError
+from pypebbleapi.timeline import validate_pin
 
 FAKE_API_ROOT = 'http://timeline_api'
 FAKE_API_KEY = 'FAKE_API_KEY'

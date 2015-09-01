@@ -1,10 +1,7 @@
 import requests
-
 from cerberus import Validator as _Validator
 
-from pypebbleapi import __version__
-from pypebbleapi import schemas
-
+from pypebbleapi import __version__, schemas
 
 PEBBLE_API_ROOT = 'https://timeline-api.getpebble.com'
 
@@ -146,6 +143,6 @@ class Timeline(object):
             user_agent=self.user_agent,
             user_token=user_token,
         )
-        _raise_for_status(response)
+        _raise_for_status(response)„
 
         return response.json()['topics']

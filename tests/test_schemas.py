@@ -1,7 +1,7 @@
-from pypebbleapi import schemas
+import pytest
 from cerberus import Validator
 
-import pytest
+from pypebbleapi import schemas
 
 fake_layout = {
     'type': 'genericPin',
