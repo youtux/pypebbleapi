@@ -1,30 +1,86 @@
 pypebbleapi
 ============
 Pebble-api for python.
-This is a library to ease the access to the Pebble Timeline and the creation of Pins.
+This is a library to ease the access to the Pebble Timeline and validate pins.
 It supports python 2.7, 3.3 and 3.4.
 
+Update
+-----
+Starting from version *1.0.0*, the API has changed. The `Pin` class has
+been removed. You should now supply a `dict`, which will be validated before sending.
+
+Install
+-------
+
+Just like you install any package:
+
+    $ pip install pypebbleapi
 
 Usage
 -----
 
 Usage is pretty simple:
 ```python
-from pypebbleapi import Timeline, Pin
+from pypebbleapi import Timeline
 import datetime
 
-timeline = Timeline(my_api_key)
+timeline = Timeline(
+    api_key=my_api_key,  # Needed only if you are going to use shared pins
+)
 
-my_pin = Pin(id='123', time=datetime.date.today().isoformat())
+my_pin = dict(
+    id='123',
+    time=datetime.date.today().isoformat(),
+    layout=dict(
+        type="genericPin",
+        title="This is a genericPin!",
+        tinyIcon="system://images/NOTIFICATION_FLAG",
+        primaryColor="#FFFFFF",
+        secondaryColor="#666666",
+        backgroundColor="#222222",
+    )
+)
 
-timeline.send_shared_pin(['a_topic', 'another_topic'], my_pin)
+# Send a shared pin
+timeline.send_shared_pin(
+    topics=['a_topic', 'another_topic'],  # List of the topics
+    pin=my_pin,
+)
+
+# Send a user pin
+timeline.send_user_pin(
+    user_token='test-user-token',
+    pin=my_pin,
+)
+```
+It is possible that **validation fails** even if the pin is correct (it could happen if Pebble updates the pin specification).
+In this case you may want to skip the validation:
+```python
+timeline.send_user_pin(
+    user_token='test-user-token',
+    pin=my_pin,
+    skip_validation=True,
+)
 ```
 
+Error handling
+-----
+The API raises errors in case the server is not available or if it returns error codes. You should always enclose calls in `try/except`:
+```python
+try:
+    timeline.send_shared_pin(...)
+except Exception as e:
+	print(e)
+```
 
-Install
--------
+If the pin you provided is not valid, a `DocumentError` will be raised:
+```python
+from pypebbleapi import DocumentError
 
-Installation is simple too::
-
-    $ pip install pypebbleapi
+bad_pin = {}  # Empty pin is not valid
+try:
+    timeline.send_shared_pin(['a-topic'], bad_pin)
+except DocumentError as e:
+	print(e)
+```
 
