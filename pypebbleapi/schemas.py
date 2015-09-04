@@ -1,14 +1,19 @@
+"""
+This module contains the schemas used to validate the pin.
+"""
+
 from copy import deepcopy
 from pprint import pformat
 
 
 class DocumentError(ValueError):
-    """There was an ambiguous exception that occurred while handling your
-    request."""
+    """
+    Exception that is raised when a document fails the validation.
+    """
 
     def __init__(self, errors):
         """
-        Initialize RequestException with `request` and `response` objects.
+        Initialize DocumentError with an `errors` object.
         """
         self.errors = errors
         message = "One or more errors occurred when validating the document:"
@@ -25,9 +30,17 @@ layout_types = {
     'weatherPin',
     'sportsPin',
 }
+""" Types of layouts """
 
 
 def icon_name_to_path(name):
+    """
+    Convert an icon name to the corresponding URI.
+
+    :param str name: The name of the icon.
+    :return: The corresponding URI.
+    :rtype: str
+    """
     return 'system://images/' + name
 
 icons = {icon_name_to_path(icon) for icon in {
@@ -124,6 +137,7 @@ icons = {icon_name_to_path(icon) for icon in {
     'BATT_EMPTY',
     'ALARM',
 }}
+""" Available icons list """
 
 basic_layout = {
     'type': {'required': True, 'type': 'string', 'allowed': layout_types},
@@ -150,6 +164,8 @@ generic_layout = deepcopy(extended_layout)
 generic_layout['type']['allowed'] = ['genericPin']
 generic_layout['title']['required'] = True
 generic_layout['tinyIcon']['required'] = True
+
+
 
 calendar_layout = deepcopy(extended_layout)
 calendar_layout['type']['allowed'] = ['calendarPin']

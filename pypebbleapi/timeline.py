@@ -1,9 +1,14 @@
+"""
+This module contains the main Timeline class.
+"""
 import requests
 from cerberus import Validator as _Validator
 
 from pypebbleapi import __version__, schemas
 
 PEBBLE_API_ROOT = 'https://timeline-api.getpebble.com'
+""" Default Pebble API root URL """
+
 
 PEBBLE_CODES = {
     400: 'The pin object submitted was invalid.',
@@ -12,6 +17,7 @@ PEBBLE_CODES = {
     429: 'Server is sending updates too quickly.',
     503: 'Could not save pin due to a temporary server error.',
 }
+""" Mapping between error status codes and reason. """
 
 
 def _raise_for_status(response):
@@ -49,6 +55,11 @@ def _request(method, url, api_key=None, user_token=None, topics_list=None,
 
 
 def validate_pin(pin):
+    """ Validate the given pin against the schema.
+
+    :param dict pin: The pin to validate:
+    :raises pypebbleapi.schemas.DocumentError: If the pin is not valid.
+    """
     v = _Validator(schemas.pin)
     if v.validate(pin):
         return
@@ -57,6 +68,12 @@ def validate_pin(pin):
 
 
 class Timeline(object):
+    """
+    Timeline class used to send or delete pins and to access users' subscriptions.
+
+    :param str api_key: Your application api key (either for production or sandbox)
+    :param str api_root: Base URL to connect to. You should probably leave it to the default.
+    """
     user_agent = '''pypebbleapi/{}'''.format(__version__)
 
     @property
@@ -76,6 +93,15 @@ class Timeline(object):
         return '{}/v1{}'.format(self.api_root, partial_url)
 
     def send_shared_pin(self, topics, pin, skip_validation=False):
+        """
+        Send a shared pin for the given topics.
+
+        :param list topics: The list of topics.
+        :param dict pin: The pin.
+        :param bool skip_validation: Whether to skip the validation.
+        :raises pypebbleapi.schemas.DocumentError: If the validation process failed.
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
         if not self.api_key:
             raise ValueError("You need to specify an api_key.")
         if not skip_validation:
@@ -91,6 +117,12 @@ class Timeline(object):
         _raise_for_status(response)
 
     def delete_shared_pin(self, pin_id):
+        """
+        Delete a shared pin.
+
+        :param str pin_id: The id of the pin to delete.
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
         if not self.api_key:
             raise ValueError("You need to specify an api_key.")
 
@@ -102,6 +134,15 @@ class Timeline(object):
         _raise_for_status(response)
 
     def send_user_pin(self, user_token, pin, skip_validation=False):
+        """
+        Send a user pin.
+
+        :param str user_token: The token of the user.
+        :param dict pin: The pin.
+        :param bool skip_validation: Whether to skip the validation.
+        :raises pypebbleapi.schemas.DocumentError: If the validation process failed.
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
         if not skip_validation:
             validate_pin(pin)
 
@@ -114,6 +155,14 @@ class Timeline(object):
         _raise_for_status(response)
 
     def delete_user_pin(self, user_token, pin_id):
+        """
+        Delete a user pin.
+
+        :param str user_token: The token of the user.
+        :param str pin_id: The id of the pin to delete.
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
+
         response = _request('DELETE',
             url=self.url_v1('/user/pins/' + pin_id),
             user_agent=self.user_agent,
@@ -122,6 +171,13 @@ class Timeline(object):
         _raise_for_status(response)
 
     def subscribe(self, user_token, topic):
+        """
+        Subscribe a user to the given topic.
+
+        :param str user_token: The token of the user.
+        :param str topic: The topic.
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
         response = _request('POST',
             url=self.url_v1('/user/subscriptions/' + topic),
             user_agent=self.user_agent,
@@ -130,6 +186,13 @@ class Timeline(object):
         _raise_for_status(response)
 
     def unsubscribe(self, user_token, topic):
+        """
+        Unsubscribe a user from the given topic.
+
+        :param str user_token: The token of the user.
+        :param str topic: The topic.
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
         response = _request('DELETE',
             url=self.url_v1('/user/subscriptions/' + topic),
             user_agent=self.user_agent,
@@ -138,6 +201,14 @@ class Timeline(object):
         _raise_for_status(response)
 
     def list_subscriptions(self, user_token):
+        """
+        Get the list of the topics which a user is subscribed to.
+
+        :param str user_token: The token of the user.
+        :return: The list of the topics.
+        :rtype: list
+        :raises `requests.exceptions.HTTPError`: If an HTTP error occurred.
+        """
         response = _request('GET',
             url=self.url_v1('/user/subscriptions'),
             user_agent=self.user_agent,
