@@ -19,7 +19,7 @@ Just like you install any package:
 Usage
 -----
 
-Usage is pretty simple:
+Here's an example:
 ```python
 from pypebbleapi import Timeline
 import datetime
@@ -35,9 +35,6 @@ my_pin = dict(
         type="genericPin",
         title="This is a genericPin!",
         tinyIcon="system://images/NOTIFICATION_FLAG",
-        primaryColor="#FFFFFF",
-        secondaryColor="#666666",
-        backgroundColor="#222222",
     )
 )
 
@@ -79,8 +76,9 @@ from pypebbleapi import DocumentError
 
 bad_pin = {}  # Empty pin is not valid
 try:
-    timeline.send_shared_pin(['a-topic'], bad_pin)
+    timeline.send_shared_pin(['a_topic'], bad_pin)
 except DocumentError as e:
-	print(e)
+    print(e)
+    print(e.errors)  # e.errors contain a dictionary of the fields that failed the validation
 ```
 
