@@ -143,6 +143,6 @@ class Timeline(object):
             user_agent=self.user_agent,
             user_token=user_token,
         )
-        _raise_for_status(response)„
+        _raise_for_status(response)
 
         return response.json()['topics']
