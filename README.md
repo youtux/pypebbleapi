@@ -1,7 +1,7 @@
 pypebbleapi
 ============
-[![Build Status](https://travis-ci.org/youtux/pypebbleapi.svg?branch=develop)](https://travis-ci.org/youtux/pypebbleapi)
-[![Documentation Status](https://readthedocs.org/projects/pypebbleapi/badge/?version=develop)](http://pypebbleapi.readthedocs.org/en/develop)
+[![Build Status](https://travis-ci.org/youtux/pypebbleapi.svg?branch=master)](https://travis-ci.org/youtux/pypebbleapi)
+[![Documentation Status](https://readthedocs.org/projects/pypebbleapi/badge/?version=latest)](http://pypebbleapi.readthedocs.org/en/latest)
 
 [Pebble Timeline](http://developer.getpebble.com/guides/timeline/) APIs for python.
 
