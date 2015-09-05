@@ -1,8 +1,12 @@
 pypebbleapi
 ============
-Pebble-api for python.
+[![Build Status](https://travis-ci.org/youtux/pypebbleapi.svg?branch=develop)](https://travis-ci.org/youtux/pypebbleapi)
+[![Documentation Status](https://readthedocs.org/projects/pypebbleapi/badge/?version=develop)](http://pypebbleapi.readthedocs.org/en/develop)
+
+[Pebble Timeline](http://developer.getpebble.com/guides/timeline/) APIs for python.
+
 This is a library to ease the access to the Pebble Timeline and validate pins.
-It supports python 2.7, 3.3 and 3.4.
+It supports Python 2.7, 3.3 and 3.4.
 
 Update
 -----
