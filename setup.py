@@ -10,7 +10,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pypebbleapi',
-    version='1.0.0a0',
+    version='1.0.0',
     url='https://github.com/youtux/pypebbleapi',
     license='MIT',
     author='Alessio Bogon',
